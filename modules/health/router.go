@@ -16,5 +16,5 @@ func NewRouter(db *gorm.DB) *Router {
 }
 
 func (r Router) Route(route *gin.RouterGroup) {
-	route.GET("/", r.requestHandler.check)
+	route.GET("/health", r.requestHandler.check)
 }

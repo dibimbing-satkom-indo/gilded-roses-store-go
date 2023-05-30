@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,36 +18,10 @@ func Default() (*gorm.DB, error) {
 	if logLevel == 0 {
 		logLevel = 2
 	}
-	var (
-		username string
-		password string
-		host     string
-		port     string
-		dbName   string
-	)
-	username = os.Getenv("MYSQL_USER")
-	password = os.Getenv("MYSQL_PASSWORD")
-	dbName = os.Getenv("MYSQL_DATABASE")
-	port = os.Getenv("MYSQL_PORT")
 
-	switch os.Getenv("ENVIRONMENT") {
-	case "development":
-		host = os.Getenv("MYSQL_HOST_DEV")
-	case "staging":
-		host = os.Getenv("MYSQL_HOST_STAG_DOCKER")
-	case "docker":
-		host = os.Getenv("MYSQL_HOST_DOCKER")
-	}
-
+	connString := os.Getenv("MYSQL_CONNECTION")
 	dbConn, err := gorm.Open(
-		mysql.Open(fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=UTC",
-			username,
-			password,
-			host,
-			port,
-			dbName,
-		)),
+		mysql.Open(connString),
 		&gorm.Config{
 			CreateBatchSize: 500,
 			Logger:          logger.Default.LogMode(logger.LogLevel(logLevel)),

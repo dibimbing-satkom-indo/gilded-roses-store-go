@@ -1,42 +1,30 @@
 package api
 
 import (
-	"bitbucket.org/ifan-moladin/base-project/utils/httpserver"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type Api struct {
-	httpServer httpserver.HttpServer
-	dbConn     *gorm.DB
-	routers    []Router
+	server  *gin.Engine
+	dbConn  *gorm.DB
+	routers []Router
 }
 
 type Router interface {
-	Route(rgh httpserver.RouteHandler)
+	Route(handler *gin.RouterGroup)
 }
 
 func (a Api) Start() error {
-	root := a.httpServer.Group("/")
+	root := a.server.Group("/main")
 	for _, router := range a.routers {
 		router.Route(root)
 	}
 
 	var err error
-	if err = a.httpServer.Run(); err != nil {
+	if err = a.server.Run(); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func New(
-	httpServer httpserver.HttpServer,
-	dbConn *gorm.DB,
-	routers []Router,
-) *Api {
-	return &Api{
-		httpServer: httpServer,
-		dbConn:     dbConn,
-		routers:    routers,
-	}
 }

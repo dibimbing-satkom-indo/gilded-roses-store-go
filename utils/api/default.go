@@ -2,26 +2,30 @@ package api
 
 import (
 	"fmt"
+	"github.com/dibimbing-satkom-indo/gilded-roses-store-go/modules/health"
+	"github.com/dibimbing-satkom-indo/gilded-roses-store-go/modules/item"
+	"github.com/dibimbing-satkom-indo/gilded-roses-store-go/utils/buckets"
 
-	"bitbucket.org/ifan-moladin/base-project/modules/health"
-	"bitbucket.org/ifan-moladin/base-project/utils/database"
-	"bitbucket.org/ifan-moladin/base-project/utils/environment"
-	"bitbucket.org/ifan-moladin/base-project/utils/httpserver"
+	"github.com/dibimbing-satkom-indo/gilded-roses-store-go/utils/db"
+	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 )
 
 func Default() *Api {
-	env := environment.New()
-	dbConn, err := database.DefaultMysqlConnectionFromDsn(env.Get("MYSQL_DSN"))
+	dbConn, err := db.Default()
 	if err != nil {
-		panic(fmt.Errorf("database.DefaultMysqlConnectionFromDsn: %w", err))
+		panic(fmt.Errorf("db.Default: %w", err))
 	}
+
+	bucket := buckets.Default()
 	routers := []Router{
 		health.NewRouter(dbConn),
+		item.NewRouter(dbConn, bucket),
 	}
-	return New(
-		httpserver.DefaultGin(),
-		dbConn,
-		routers,
-	)
+
+	server := gin.Default()
+	return &Api{
+		server:  server,
+		routers: routers,
+	}
 }
