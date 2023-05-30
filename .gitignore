@@ -1,5 +1,6 @@
-vendor
+/vendor
+/.idea
 
 .env
 
-*_mock.go
+mock_*
